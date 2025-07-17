@@ -245,5 +245,4 @@ This will save the resultant file to `./krb5.conf`:
 [domain_realm]
     .mercury.local = MERCURY.LOCAL
     mercury.local = MERCURY.LOCAL
-
 ```
