@@ -187,6 +187,11 @@ def main():
              'OR [domain/]user:pass (with -tf)'
     )
     parser.add_argument(
+        '-hashes',
+        dest='hashes',
+        help='LM:NT hashes for bind user authentication (format: lm:nt)'
+    )
+    parser.add_argument(
         '-tf', '--target-file',
         dest='target_file',
         help='File with one target host per line'
@@ -246,11 +251,21 @@ def main():
         except ValueError:
             logger.error("Invalid inline syntax: %s", cred)
             sys.exit(1)
-        if '/' not in cred_part or ':' not in cred_part:
+        if '/' not in cred_part:
             logger.error("Invalid cred: %s", cred_part)
             sys.exit(1)
         domain, rest = cred_part.split('/', 1)
-        bind_user, bind_pass = rest.split(':', 1)
+        if ":" in rest:
+            bind_user, bind_pass = rest.split(':', 1)
+        else:
+            bind_user = rest
+            bind_pass = ""
+
+            nt, lm = args.hashes.split(':', 1) if args.hashes else ("", "")
+            if not nt:
+                nt = "aad3b435b51404eeaad3b435b51404ee"
+                bind_pass = f"{nt}:{lm}"
+                
         targets = [tgt]
 
     tgt_user = args.target_user
